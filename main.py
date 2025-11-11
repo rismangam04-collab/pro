@@ -18,7 +18,7 @@ app = FastAPI()
 MODEL_PATH = "model_tanaman_finetuned.keras"
 LABEL_PATH = "class_labels.json"
 if not os.path.exists(MODEL_PATH):
-    url = "https://drive.google.com/uc?id=1SNgz17MqeFyTvWWxJgQ5ylyIz2TAtAZx"
+    url = "https://drive.google.com/file/d/1SNgz17MqeFyTvWWxJgQ5ylyIz2TAtAZx/view?usp=sharing"
     gdown.download(url, MODEL_PATH, quiet=False)
 model = tf.keras.models.load_model(MODEL_PATH)
 
@@ -57,4 +57,5 @@ async def predict(file: UploadFile = File(...)):
 # ==========================================
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
