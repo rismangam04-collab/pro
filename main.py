@@ -2,12 +2,11 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras.preprocessing import image
 import uvicorn
 import json
 import io
-from PIL import Image
 import os
+from PIL import Image
 import gdown
 
 app = FastAPI()
@@ -17,16 +16,24 @@ app = FastAPI()
 # ==========================================
 MODEL_PATH = "model_tanaman_finetuned.keras"
 LABEL_PATH = "class_labels.json"
+
+# Link Google Drive versi direct-download (ubah /file/d/... jadi /uc?id=...)
+MODEL_URL = "https://drive.google.com/uc?id=1SNgz17MqeFyTvWWxJgQ5ylyIz2TAtAZx"
+
+# Jika model belum ada di server, download otomatis
 if not os.path.exists(MODEL_PATH):
-    url = "https://drive.google.com/file/d/1SNgz17MqeFyTvWWxJgQ5ylyIz2TAtAZx/view?usp=sharing"
-    gdown.download(url, MODEL_PATH, quiet=False)
+    print("Downloading model from Google Drive...")
+    gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
+
+# Load model TensorFlow
 model = tf.keras.models.load_model(MODEL_PATH)
 
-with open(LABEL_PATH, 'r') as f:
+# Load label
+with open(LABEL_PATH, "r") as f:
     label_map = json.load(f)
 
-# pastikan label dalam urutan index
-class_labels = [label_map[str(i)] if str(i) in label_map else label_map[i] 
+# Pastikan urutan label sesuai index
+class_labels = [label_map[str(i)] if str(i) in label_map else label_map[i]
                 for i in sorted(label_map.keys(), key=lambda x: int(x))]
 
 # ==========================================
@@ -53,9 +60,7 @@ async def predict(file: UploadFile = File(...)):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 # ==========================================
-# 3. Jalankan server
+# 3. Jalankan server (lokal)
 # ==========================================
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
